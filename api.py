@@ -20,10 +20,14 @@ def shorten():
     '''
     Code to receive the request for shortening a URL
     '''
+    if not request.data:
+        return jsonify({'error': 'Did not receive data'})
+
     data = json.loads(request.data)
     url = data['url'].strip()
+
     if not helpers.is_url(url):
-    return jsonify({'error': 'Not a valid url'})
+        return jsonify({'error': 'Not a valid url'})
 
     key = base64.b64encode(url)[-6:].replace('=','')
     helpers.add_to_redis(red, key, url)
@@ -43,4 +47,5 @@ def bounce(key):
     except KeyError as e:
         return jsonify({'error': 'url not found'}, 400)
 
-import models, helpers
+
+import helpers, models
