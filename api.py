@@ -17,17 +17,19 @@ db = SQLAlchemy(app)
 
 @app.route('/', methods=['POST'])
 def shorten():
-
-   data = json.loads(request.data)
-   url = data['url'].strip()
-   if not helpers.is_url(url):
+    '''
+    Code to receive the request for shortening a URL
+    '''
+    data = json.loads(request.data)
+    url = data['url'].strip()
+    if not helpers.is_url(url):
     return jsonify({'error': 'Not a valid url'})
 
-   key = base64.b64encode(url)[-6:].replace('=','')
-   helpers.add_to_redis(red, key, url)
+    key = base64.b64encode(url)[-6:].replace('=','')
+    helpers.add_to_redis(red, key, url)
 
-   url = url_for('bounce', key=key, _external=True)
-   return jsonify({'url': url, 'pass': True})
+    url = url_for('bounce', key=key, _external=True)
+    return jsonify({'url': url, 'pass': True})
 
 @app.route('/<key>', methods=['GET'])
 def bounce(key):
@@ -41,6 +43,4 @@ def bounce(key):
     except KeyError as e:
         return jsonify({'error': 'url not found'}, 400)
 
-if __name__ == '__main__':
-    import models, helpers
-    app.run()
+import models, helpers
